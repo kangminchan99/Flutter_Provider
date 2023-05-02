@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_provider/model/fish_model.dart';
+import 'package:flutter_provider/model/seafish_model.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -12,10 +13,18 @@ class MyApp extends StatelessWidget {
 // Provider - 데이터를 필요로 하는 위젯들보다 상위에 위치해야함
   @override
   Widget build(BuildContext context) {
-    return Provider(
-      // create메서드를 통해서 FishModel 클래스를 리턴해주면,  Provider의 child가 된
-      // MaterialApp아래의 모든 위젯에서 FishModel인스턴스에 접근 가능
-      create: (context) => FishModel(name: "Salmon", number: 10, size: 'big'),
+    // MultiProvider - 두 개의 다른 타입의 ChangeNotifierProvider가 존재하고  한 위젯에서 이 모두에게 접근하기 위해 사용하는 방법
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+            // create메서드를 통해서 FishModel 클래스를 리턴해주면,  Provider의 child가 된
+            // MaterialApp아래의 모든 위젯에서 FishModel인스턴스에 접근 가능
+            create: (context) =>
+                FishModel(name: "Salmon", number: 10, size: 'big')),
+        ChangeNotifierProvider(
+            create: (context) =>
+                SeaFishModel(name: "Tuan", tunaNumber: 0, size: 'middle')),
+      ],
       child: MaterialApp(
         home: FishOrder(),
       ),
@@ -100,9 +109,15 @@ class SpicyB extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('Number${Provider.of<FishModel>(context).number}'),
+        Text('TunaNumber${Provider.of<SeaFishModel>(context).tunaNumber}'),
         Text('Size${Provider.of<FishModel>(context).size}'),
         const SizedBox(height: 20),
+        ElevatedButton(
+            onPressed: () {
+              Provider.of<SeaFishModel>(context, listen: false)
+                  .changeSeaFishNumber();
+            },
+            child: const Text('Sea Fish Number')),
         const Low(),
       ],
     );
@@ -134,6 +149,13 @@ class SpicyC extends StatelessWidget {
         Text('Number${Provider.of<FishModel>(context).number}'),
         Text('Size${Provider.of<FishModel>(context).size}'),
         const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () {
+            // FishModel 인스턴스에 접근한다음 숫자를 1씩증가시켜준다.
+            Provider.of<FishModel>(context, listen: false).changeFishNumber();
+          },
+          child: const Text('change Fish Number'),
+        )
       ],
     );
   }
